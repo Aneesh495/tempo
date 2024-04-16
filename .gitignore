@@ -1,0 +1,22 @@
+# Tempo build and runtime artifacts
+build/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.out
+
+# Waveforms and simulation output
+*.vcd
+*.dump
+
+# Logs and temporary files
+*.log
+*.tmp
+.DS_Store
+
+# Virtual environments and caches
+__pycache__/
+*.pyc
+.cache/

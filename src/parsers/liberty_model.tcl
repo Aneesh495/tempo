@@ -374,6 +374,7 @@ namespace eval ::tempo::liberty {
             set pins [dict get $cinfo pins]
             if {![dict exists $pins $out_pin]} { return 0.0 }
             set pinfo [dict get $pins $out_pin]
+            if {![dict exists $pinfo timing_arcs]} { return 0.0 }
 
             foreach arc [dict get $pinfo timing_arcs] {
                 if {[dict get $arc related_pin] eq $in_pin} {
@@ -393,6 +394,7 @@ namespace eval ::tempo::liberty {
             set pins [dict get $cinfo pins]
             if {![dict exists $pins $out_pin]} { return 0.0 }
             set pinfo [dict get $pins $out_pin]
+            if {![dict exists $pinfo timing_arcs]} { return 0.0 }
 
             foreach arc [dict get $pinfo timing_arcs] {
                 if {[dict get $arc related_pin] eq $in_pin} {

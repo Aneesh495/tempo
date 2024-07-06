@@ -171,11 +171,33 @@ namespace eval ::tempo::netlist {
             }
         }
 
+        method get_instance_names {} {
+            return [my get_instances]
+        }
+
+        method get_cell_name {inst_name} {
+            return [my get_instance_cell $inst_name]
+        }
+
+        method set_cell_name {inst_name new_cell} {
+            my set_instance_cell $inst_name $new_cell
+        }
+
         method get_instance_pins {inst_name} {
             if {[dict exists $instances $inst_name]} {
                 return [dict get [dict get $instances $inst_name] pins]
             }
             return [dict create]
+        }
+
+        method get_pin_net {inst_name pin_name} {
+            if {[dict exists $instances $inst_name]} {
+                set pins [dict get [dict get $instances $inst_name] pins]
+                if {[dict exists $pins $pin_name]} {
+                    return [dict get $pins $pin_name]
+                }
+            }
+            return ""
         }
 
         method connect_pin {inst_name pin_name net_name {pin_dir "LOAD"}} {
@@ -189,15 +211,20 @@ namespace eval ::tempo::netlist {
             set pin_ref "$inst_name/$pin_name"
             set udir [string toupper $pin_dir]
 
+            set ninfo [dict get $nets $net_name]
             if {$udir eq "DRIVER" || $udir eq "OUTPUT" || $udir eq "OUT"} {
-                set cur_drivers [dict get [dict get $nets $net_name] drivers]
+                set cur_drivers [dict get $ninfo drivers]
                 if {$pin_ref ni $cur_drivers} {
-                    dict lappend nets $net_name drivers $pin_ref
+                    lappend cur_drivers $pin_ref
+                    dict set ninfo drivers $cur_drivers
+                    dict set nets $net_name $ninfo
                 }
             } else {
-                set cur_loads [dict get [dict get $nets $net_name] loads]
+                set cur_loads [dict get $ninfo loads]
                 if {$pin_ref ni $cur_loads} {
-                    dict lappend nets $net_name loads $pin_ref
+                    lappend cur_loads $pin_ref
+                    dict set ninfo loads $cur_loads
+                    dict set nets $net_name $ninfo
                 }
             }
         }

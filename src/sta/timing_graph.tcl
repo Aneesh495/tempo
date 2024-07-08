@@ -29,6 +29,7 @@ namespace eval ::tempo::sta::graph {
         }
 
         method get_graph {} { return $base_graph }
+        method get_nodes {} { return [$base_graph all_nodes] }
         method get_startpoints {} { return $startpoints }
         method get_endpoints {} { return $endpoints }
         method get_clock_pins {} { return $clock_pins }

@@ -27,6 +27,7 @@ namespace eval ::tempo::liberty {
 
         method get_name {} { return $name }
         method get_cells {} { return [dict keys $cells] }
+        method get_cell_names {} { return [dict keys $cells] }
         method has_cell {cname} { return [dict exists $cells $cname] }
         method get_cell {cname} {
             if {[dict exists $cells $cname]} {

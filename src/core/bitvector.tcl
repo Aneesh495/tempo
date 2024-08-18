@@ -197,6 +197,15 @@ namespace eval ::tempo::logic {
     }
 }
 
+namespace eval ::tempo::bv::Roth5 {
+    proc not {a} { return [string toupper [::tempo::logic::d_not $a]] }
+    proc and {a b} { return [string toupper [::tempo::logic::d_and $a $b]] }
+    proc nand {a b} { return [string toupper [::tempo::logic::d_not [::tempo::logic::d_and $a $b]]] }
+    proc or {a b} { return [string toupper [::tempo::logic::d_or $a $b]] }
+    proc nor {a b} { return [string toupper [::tempo::logic::d_not [::tempo::logic::d_or $a $b]]] }
+    proc xor {a b} { return [string toupper [::tempo::logic::d_xor $a $b]] }
+}
+
 namespace eval ::tempo::bv {
     # Arbitrary-width bitvectors represented as uppercase strings of '0', '1', 'X', 'Z'
     # Index 0 is MSB, Index end is LSB, consistent with string index representation

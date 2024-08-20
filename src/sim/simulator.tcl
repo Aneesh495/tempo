@@ -17,6 +17,7 @@ namespace eval ::tempo::sim {
         variable clk_prev           ;# dict: clk_pin -> "0"|"1"
         variable change_history     ;# list of [dict create time $t net $net old_val $o new_val $n]
         variable default_gate_delay ;# in ps
+        variable clamped_nets       ;# dict: net_name -> stuck_val
 
         constructor {nl lib {def_delay 15}} {
             set netlist $nl
@@ -39,6 +40,7 @@ namespace eval ::tempo::sim {
             set reg_states [dict create]
             set clk_prev [dict create]
             set change_history [list]
+            set clamped_nets [dict create]
             $queue reset
 
             foreach net [$netlist get_nets] {
@@ -158,6 +160,13 @@ namespace eval ::tempo::sim {
             return "X"
         }
 
+        # Clamp a net permanently to a stuck-at value (for fault simulation)
+        method clamp_net {net_name val} {
+            dict set clamped_nets $net_name $val
+            dict set net_values $net_name $val
+            my _propagate_net_event $net_name
+        }
+
         # Execute simulation up to stop_time_ps
         method run {stop_time_ps} {
             while {![$queue is_empty]} {
@@ -171,6 +180,9 @@ namespace eval ::tempo::sim {
 
                 foreach ev $current_events {
                     set target [dict get $ev target]
+                    if {[dict exists $clamped_nets $target]} {
+                        continue
+                    }
                     set new_val [dict get $ev value]
                     set old_val "X"
                     if {[dict exists $net_values $target]} {

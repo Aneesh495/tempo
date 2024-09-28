@@ -1,0 +1,125 @@
+#!/bin/sh
+# the next line restarts using tclsh \
+if [ -x /opt/homebrew/opt/tcl-tk@8/bin/tclsh ]; then exec /opt/homebrew/opt/tcl-tk@8/bin/tclsh "$0" "$@"; fi
+# the next line restarts using tclsh \
+exec tclsh "$0" "$@"
+# ==============================================================================
+# TEMPO: Static Timing Analysis & Logic Synthesis Engine
+# Primary CLI Entrypoint and Interactive Shell
+# ==============================================================================
+
+set app_dir [file dirname [file dirname [file normalize [info script]]]]
+
+# Source all core subsystems
+source [file join $app_dir "src" "core" "types.tcl"]
+source [file join $app_dir "src" "core" "bitvector.tcl"]
+source [file join $app_dir "src" "core" "graph.tcl"]
+source [file join $app_dir "src" "core" "netlist.tcl"]
+source [file join $app_dir "src" "core" "accel.tcl"]
+
+# Source parsers
+source [file join $app_dir "src" "parsers" "liberty_lexer.tcl"]
+source [file join $app_dir "src" "parsers" "liberty_parser.tcl"]
+source [file join $app_dir "src" "parsers" "liberty_model.tcl"]
+source [file join $app_dir "src" "parsers" "verilog_lexer.tcl"]
+source [file join $app_dir "src" "parsers" "verilog_parser.tcl"]
+source [file join $app_dir "src" "parsers" "verilog_writer.tcl"]
+source [file join $app_dir "src" "parsers" "sdc_model.tcl"]
+source [file join $app_dir "src" "parsers" "sdc_parser.tcl"]
+source [file join $app_dir "src" "parsers" "spef_parser.tcl"]
+
+# Source synthesis engine
+source [file join $app_dir "src" "synth" "boolean.tcl"]
+source [file join $app_dir "src" "synth" "aig.tcl"]
+source [file join $app_dir "src" "synth" "cut.tcl"]
+source [file join $app_dir "src" "synth" "techmap.tcl"]
+source [file join $app_dir "src" "synth" "optimize.tcl"]
+
+# Source STA engine
+source [file join $app_dir "src" "sta" "timing_graph.tcl"]
+source [file join $app_dir "src" "sta" "delay_calc.tcl"]
+source [file join $app_dir "src" "sta" "elmore.tcl"]
+source [file join $app_dir "src" "sta" "clock_tree.tcl"]
+source [file join $app_dir "src" "sta" "forward_prop.tcl"]
+source [file join $app_dir "src" "sta" "backward_prop.tcl"]
+source [file join $app_dir "src" "sta" "slack_calc.tcl"]
+source [file join $app_dir "src" "sta" "critical_path.tcl"]
+source [file join $app_dir "src" "sta" "corner.tcl"]
+
+# Source optimization
+source [file join $app_dir "src" "opt" "drc.tcl"]
+source [file join $app_dir "src" "opt" "gate_sizing.tcl"]
+source [file join $app_dir "src" "opt" "buffer_insert.tcl"]
+source [file join $app_dir "src" "opt" "hold_fix.tcl"]
+
+# Source power and area
+source [file join $app_dir "src" "power" "leakage.tcl"]
+source [file join $app_dir "src" "power" "dynamic.tcl"]
+source [file join $app_dir "src" "power" "area.tcl"]
+
+# Source simulation
+source [file join $app_dir "src" "sim" "event.tcl"]
+source [file join $app_dir "src" "sim" "simulator.tcl"]
+source [file join $app_dir "src" "sim" "vcd.tcl"]
+source [file join $app_dir "src" "sim" "hazard.tcl"]
+
+# Source formal & fault testing
+source [file join $app_dir "src" "formal" "cec.tcl"]
+source [file join $app_dir "src" "fault" "fault_model.tcl"]
+source [file join $app_dir "src" "fault" "podem.tcl"]
+source [file join $app_dir "src" "fault" "fault_sim.tcl"]
+
+# Source shell commands
+source [file join $app_dir "src" "shell" "commands.tcl"]
+
+# Process CLI arguments
+set script_file ""
+set interactive 0
+
+if {$argc > 0} {
+    set first_arg [lindex $argv 0]
+    if {$first_arg eq "-f" && $argc > 1} {
+        set script_file [lindex $argv 1]
+    } elseif {$first_arg eq "-i"} {
+        set interactive 1
+    } elseif {[file exists $first_arg]} {
+        set script_file $first_arg
+    } else {
+        puts stderr "Usage: tempo \[-f <script.tcl>\] \[-i\]"
+        exit 1
+    }
+}
+
+if {$script_file ne ""} {
+    # Batch script execution mode
+    if {![file exists $script_file]} {
+        puts stderr "Error: Script file not found: $script_file"
+        exit 1
+    }
+    source $script_file
+    exit 0
+}
+
+# Interactive REPL mode
+::tempo::shell::print_banner
+
+while {1} {
+    puts -nonewline "tempo> "
+    flush stdout
+
+    if {[gets stdin line] < 0} {
+        puts ""
+        break
+    }
+
+    set cmd [string trim $line]
+    if {$cmd eq ""} { continue }
+    if {$cmd eq "exit" || $cmd eq "quit"} {
+        puts "Exiting TEMPO session. Goodbye."
+        break
+    }
+
+    if {[catch {uplevel #0 $cmd} err]} {
+        puts stderr "Error: $err"
+    }
+}

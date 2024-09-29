@@ -466,4 +466,14 @@ namespace eval ::tempo::sdc::parser {
 
         $cur_constraints add_multicycle_path $multiplier $type $from $to
     }
+
+    proc read_sdc_file {filepath {netlist ""}} {
+        set c [::tempo::sdc::Constraints new]
+        ::tempo::sdc::parser::evaluate_file $filepath $c $netlist
+        return $c
+    }
+}
+
+namespace eval ::tempo::sdc {
+    namespace export read_sdc_file
 }

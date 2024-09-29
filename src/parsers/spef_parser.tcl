@@ -189,4 +189,12 @@ namespace eval ::tempo::spef {
         close $fp
         return [parse $content]
     }
+
+    proc read_spef_file {filepath} {
+        return [parse_file $filepath]
+    }
+}
+
+namespace eval ::tempo::spef {
+    namespace export read_spef_file
 }

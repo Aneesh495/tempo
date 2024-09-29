@@ -355,4 +355,19 @@ namespace eval ::tempo::verilog::parser {
         }
         return $base_name
     }
+
+    proc read_verilog_file {filepath {lib_lookup ""}} {
+        if {![file exists $filepath]} {
+            return -code error "Verilog file does not exist: $filepath"
+        }
+        set fp [open $filepath r]
+        set content [read $fp]
+        close $fp
+        set tokens [::tempo::verilog::lexer::tokenize $content]
+        return [::tempo::verilog::parser::parse $tokens $lib_lookup]
+    }
+}
+
+namespace eval ::tempo::verilog {
+    namespace export read_verilog_file
 }

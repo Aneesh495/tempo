@@ -47,7 +47,7 @@ namespace eval ::tempo::shell {
             return
         }
         puts "Info: Reading structural Verilog netlist: $filepath"
-        set current_netlist [::tempo::verilog::read_verilog_file $filepath]
+        set current_netlist [::tempo::verilog::parser::read_verilog_file $filepath]
         set stats [$current_netlist get_stats]
         puts [format "Info: Parsed module '%s' (%d inputs, %d outputs, %d instances, %d nets)." \
             [dict get $stats name] \
@@ -65,7 +65,7 @@ namespace eval ::tempo::shell {
             return
         }
         puts "Info: Reading SDC constraints: $filepath"
-        set current_constraints [::tempo::sdc::read_sdc_file $filepath]
+        set current_constraints [::tempo::sdc::parser::read_sdc_file $filepath]
         puts "Info: Successfully evaluated timing constraints."
     }
 
@@ -77,8 +77,8 @@ namespace eval ::tempo::shell {
             return
         }
         puts "Info: Reading SPEF parasitic interconnects: $filepath"
-        set current_spef [::tempo::spef::read_spef_file $filepath]
-        puts [format "Info: Loaded SPEF parasitic network with %d nets." [dict size [$current_spef get_all_nets]]]
+        set current_spef [::tempo::spef::parse_file $filepath]
+        puts [format "Info: Loaded SPEF parasitic network with %d nets." [llength [$current_spef all_nets]]]
     }
 
     # link_design

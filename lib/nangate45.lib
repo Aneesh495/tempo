@@ -1,0 +1,180 @@
+/* ==============================================================================
+ * Nangate 45nm Open Cell Library (Subset)
+ * Operating Condition: typical (1.10V, 25C)
+ * ==============================================================================
+ */
+
+library (NangateOpenCellLibrary) {
+    technology (cmos);
+    delay_model : table_lookup;
+    time_unit : "1ns";
+    voltage_unit : "1V";
+    current_unit : "1mA";
+    capacitive_load_unit (1, pf);
+
+    nom_process : 1.0;
+    nom_temperature : 25.0;
+    nom_voltage : 1.10;
+
+    lu_table_template (nldm_3x3) {
+        variable_1 : input_net_transition;
+        variable_2 : total_output_net_capacitance;
+        index_1 ("0.005, 0.020, 0.100");
+        index_2 ("0.0005, 0.005, 0.025");
+    }
+
+    cell (INV_X1) {
+        area : 0.532;
+        cell_leakage_power : 0.015;
+
+        pin (A) {
+            direction : input;
+            capacitance : 0.0012;
+            max_transition : 0.400;
+        }
+
+        pin (ZN) {
+            direction : output;
+            capacitance : 0.0;
+            max_capacitance : 0.060;
+            function : "!A";
+
+            timing () {
+                related_pin : "A";
+                timing_sense : negative_unate;
+                timing_type : combinational;
+
+                cell_rise (nldm_3x3) {
+                    index_1 ("0.005, 0.020, 0.100");
+                    index_2 ("0.0005, 0.005, 0.025");
+                    values ("0.012, 0.032, 0.115", \
+                            "0.022, 0.042, 0.125", \
+                            "0.058, 0.078, 0.160");
+                }
+
+                cell_fall (nldm_3x3) {
+                    index_1 ("0.005, 0.020, 0.100");
+                    index_2 ("0.0005, 0.005, 0.025");
+                    values ("0.010, 0.028, 0.100", \
+                            "0.018, 0.036, 0.108", \
+                            "0.050, 0.068, 0.140");
+                }
+            }
+        }
+    }
+
+    cell (NAND2_X1) {
+        area : 0.798;
+        cell_leakage_power : 0.022;
+
+        pin (A1) {
+            direction : input;
+            capacitance : 0.0014;
+        }
+
+        pin (A2) {
+            direction : input;
+            capacitance : 0.0013;
+        }
+
+        pin (ZN) {
+            direction : output;
+            function : "!(A1 & A2)";
+
+            timing () {
+                related_pin : "A1";
+                timing_sense : negative_unate;
+                timing_type : combinational;
+
+                cell_rise (nldm_3x3) {
+                    index_1 ("0.005, 0.020, 0.100");
+                    index_2 ("0.0005, 0.005, 0.025");
+                    values ("0.016, 0.040, 0.135", \
+                            "0.028, 0.052, 0.148", \
+                            "0.070, 0.095, 0.190");
+                }
+
+                cell_fall (nldm_3x3) {
+                    index_1 ("0.005, 0.020, 0.100");
+                    index_2 ("0.0005, 0.005, 0.025");
+                    values ("0.014, 0.035, 0.120", \
+                            "0.024, 0.045, 0.130", \
+                            "0.062, 0.082, 0.170");
+                }
+            }
+        }
+    }
+
+    cell (DFF_X1) {
+        area : 3.458;
+        cell_leakage_power : 0.085;
+
+        ff ("IQ", "IQN") {
+            next_state : "D";
+            clocked_on : "CK";
+        }
+
+        pin (CK) {
+            direction : input;
+            capacitance : 0.0018;
+            clock : true;
+        }
+
+        pin (D) {
+            direction : input;
+            capacitance : 0.0012;
+
+            timing () {
+                related_pin : "CK";
+                timing_type : setup_rising;
+
+                rise_constraint (nldm_3x3) {
+                    index_1 ("0.005, 0.020, 0.100");
+                    index_2 ("0.005, 0.020, 0.100");
+                    values ("0.025, 0.027, 0.032", \
+                            "0.028, 0.030, 0.035", \
+                            "0.040, 0.042, 0.048");
+                }
+            }
+
+            timing () {
+                related_pin : "CK";
+                timing_type : hold_rising;
+
+                rise_constraint (nldm_3x3) {
+                    index_1 ("0.005, 0.020, 0.100");
+                    index_2 ("0.005, 0.020, 0.100");
+                    values ("0.005, 0.005, 0.005", \
+                            "0.005, 0.005, 0.005", \
+                            "0.005, 0.005, 0.005");
+                }
+            }
+        }
+
+        pin (Q) {
+            direction : output;
+            function : "IQ";
+
+            timing () {
+                related_pin : "CK";
+                timing_type : rising_edge;
+
+                cell_rise (nldm_3x3) {
+                    index_1 ("0.005, 0.020, 0.100");
+                    index_2 ("0.0005, 0.005, 0.025");
+                    values ("0.080, 0.115, 0.220", \
+                            "0.095, 0.130, 0.235", \
+                            "0.140, 0.175, 0.280");
+                }
+
+                cell_fall (nldm_3x3) {
+                    index_1 ("0.005, 0.020, 0.100");
+                    index_2 ("0.0005, 0.005, 0.025");
+                    values ("0.075, 0.105, 0.205", \
+                            "0.088, 0.118, 0.218", \
+                            "0.130, 0.160, 0.260");
+                }
+            }
+        }
+    }
+}

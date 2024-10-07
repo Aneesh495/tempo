@@ -1,0 +1,44 @@
+*SPEF "IEEE 1481-1999"
+*DESIGN "alu4"
+*DATE "18-OCT-2026 20:00:00"
+*VENDOR "Tempo EDA"
+*PROGRAM "Tempo Physical Parasitic Extractor"
+*VERSION "1.0.0"
+*DESIGN_FLOW "POST_LAYOUT"
+*DIVIDER /
+*DELIMITER :
+*BUS_DELIMITER [ ]
+*T_UNIT 1 PS
+*C_UNIT 1 PF
+*R_UNIT 1 OHM
+*L_UNIT 1 HENRY
+
+*D_NET w_nand0 0.0055
+*CONN
+*I u_nand0:Y O
+*I u_inv0:A I
+*CAP
+1 w_nand0:1 0.0025
+2 w_nand0:2 0.0030
+*RES
+1 w_nand0:1 w_nand0:2 18.5
+*END
+
+*D_NET w_and0 0.0048
+*CONN
+*I u_and0:Y O
+*CAP
+1 w_and0:1 0.0048
+*RES
+1 w_and0:1 u_and0:Y 12.0
+*END
+
+*D_NET w_d0 0.0032
+*CONN
+*I u_inv0:Y O
+*I u_reg0:D I
+*CAP
+1 w_d0:1 0.0032
+*RES
+1 w_d0:1 u_inv0:Y 8.5
+*END
